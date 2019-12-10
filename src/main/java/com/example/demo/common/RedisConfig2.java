@@ -1,29 +1,32 @@
 package com.example.demo.common;
 
-import com.example.demo.Util.FastJson2JsonRedisSerializer;
-import com.example.demo.Util.RedisUtil;
-import com.example.demo.Util.RedisUtilForRedisTemplate;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurerSupport;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
 @Configuration
-public class RedisConfig2 {
+@EnableCaching
+public class RedisConfig2 extends CachingConfigurerSupport {
     @Value("${spring.redis.host}")
     private String host;
 
@@ -55,11 +58,11 @@ public class RedisConfig2 {
         jedisClientConfiguration.connectTimeout(Duration.ofMillis(timeout));
         JedisConnectionFactory factory = new JedisConnectionFactory(redisStandaloneConfiguration,
                 jedisClientConfiguration.build());
+        //factory.afterPropertiesSet();
         return factory;
     }
 
     /**
-     * @auther: zhangyingqi
      * @date: 17:52 2018/8/28
      * @param: [redisConnectionFactory]
      * @return: com.springboot.demo.base.utils.RedisTemplate
@@ -91,7 +94,6 @@ public class RedisConfig2 {
     }
 
     /**
-     * @auther: zhangyingqi
      * @date: 17:52 2018/8/28
      * @param: []
      * @return: org.springframework.data.redis.serializer.RedisSerializer
@@ -103,7 +105,6 @@ public class RedisConfig2 {
     }*/
 
     /**
-     * @auther: zhangyingqi
      * @date: 17:51 2018/8/28
      * @param: [redisTemplate, factory]
      * @return: void
@@ -131,7 +132,6 @@ public class RedisConfig2 {
     }
 
     /**
-     * @auther: zhangyingqi
      * @date: 17:51 2018/8/28
      * @param: [redisTemplate]
      * @return: com.springboot.demo.base.utils.RedisUtil
@@ -144,4 +144,19 @@ public class RedisConfig2 {
         //RedisUtilForRedisTemplate.setRedisTemplate(redisTemplate);
         return redisUtil;
     }*/
+
+    /**
+     * 设置cacheManager
+     * @param redisConnectionFactory
+     * @return
+     */
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(1)); // 设置缓存有效期一小时
+        return RedisCacheManager
+                .builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
+                .cacheDefaults(redisCacheConfiguration).build();
+    }
+
 }

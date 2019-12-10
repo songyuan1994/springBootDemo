@@ -5,21 +5,28 @@ import com.example.demo.Util.RedisUtilForRedisTemplate;
 import com.example.demo.common.ResultError;
 import com.example.demo.common.ResultObject;
 import com.example.demo.dao.UserDao;
+import com.example.demo.model.CreateMallMerchantParam;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import redis.clients.jedis.Tuple;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Service
+@CacheConfig(cacheNames="testCacheManager")
 public class UserServiceImpl implements UserService {
 
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -77,16 +84,30 @@ public class UserServiceImpl implements UserService {
         return ResultObject.toResult(ResultError.SUCCESS, null);
     }
 
+
+    @Cacheable(key = "'redis_role_'+#userId")
     @Override
     public String testZReverseRange(String userId) {
-        Set<ZSetOperations.TypedTuple<Object>> userSet = redisUtilForRedisTemplate.redisZRevrange("user_zrange",0,-1);
+/*        Set<ZSetOperations.TypedTuple<Object>> userSet = redisUtilForRedisTemplate.redisZRevrange("user_zrange",0,-1);
         List<User> resultList = new ArrayList<>();
         for(ZSetOperations.TypedTuple<Object> tuple : userSet){
            User user = JSONObject.parseObject(String.valueOf(tuple.getValue()),User.class);
            System.out.println("Score ="+tuple.getScore());
            resultList.add(user);
-        }
-        return ResultObject.toResult(ResultError.SUCCESS, resultList);
+        }*/
+        System.out.println("222");
+        return ResultObject.toResult(ResultError.SUCCESS, null);
+    }
+
+    @Override
+    public String testValid(CreateMallMerchantParam param, HttpServletResponse response) {
+        System.out.println("param = {}"+JSONObject.toJSONString(param));
+/*        try {
+            response.sendRedirect("/index.html");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+        return ResultObject.toResult(ResultError.SUCCESS, null);
     }
 
 }

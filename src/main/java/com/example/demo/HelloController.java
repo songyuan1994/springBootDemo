@@ -1,12 +1,17 @@
 package com.example.demo;
 
+import com.alibaba.fastjson.JSONObject;
+import com.example.demo.model.CreateMallMerchantParam;
+import com.example.demo.model.NotifyPlayerNewMessageCommand;
 import com.example.demo.service.UserService;
+import netscape.javascript.JSObject;
 import org.jboss.logging.Param;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 @RestController
 public class HelloController {
@@ -61,5 +66,18 @@ public class HelloController {
     @RequestMapping("test/testRedisTemplateZReverseRange")
     public String testRedisTemplateZReverseRange(@RequestParam("userId")String userId){
         return userService.testZReverseRange(userId);
+    }
+
+    //验证valid的使用，只需要在参数前面加上@Valid即可启用
+    @RequestMapping("test/testValid")
+    public String testValid(@Valid CreateMallMerchantParam param, HttpServletResponse response){
+        return userService.testValid(param,response);
+    }
+
+    @RequestMapping(value = "test/testOkHttp",method = RequestMethod.POST)
+    public String testOkHttp(String msgContent,long userId){
+        System.out.println(userId);
+        System.out.println(msgContent);
+        return "hello";
     }
 }

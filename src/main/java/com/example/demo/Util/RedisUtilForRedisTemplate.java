@@ -129,7 +129,7 @@ public class RedisUtilForRedisTemplate {
     }
 
     /**
-     * zadd
+     * zset的add方法
      * @param dialogKey key
      * @param score 分数
      * @param dialogstr 值
@@ -144,6 +144,7 @@ public class RedisUtilForRedisTemplate {
         }
     }
 
+    //zset 倒序展示
     public Set<ZSetOperations.TypedTuple<Object>> redisZRevrange(String dialogKey, long start, long end) {
         try {
             Set<ZSetOperations.TypedTuple<Object>> dialogSet = redisTemplate.opsForZSet().reverseRangeWithScores(dialogKey, start, end); //pagination
